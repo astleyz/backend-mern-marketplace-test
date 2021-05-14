@@ -76,6 +76,7 @@
     "no-plusplus": "off",
     "array-callback-return": "off",
     "no-restricted-syntax": "off",
-    "no-case-declarations": "off"
+    "no-case-declarations": "off",
+    "import/extensions": "off"
   }
 }
