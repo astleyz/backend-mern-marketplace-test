@@ -1,0 +1,81 @@
+{
+  "env": {
+    "es2020": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "airbnb/base",
+    "plugin:prettier/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+    "prefer-destructuring": "off",
+    "valid-jsdoc": [
+      "error",
+      {
+        "requireParamDescription": false,
+        "requireReturnDescription": false,
+        "requireReturn": false,
+        "prefer": { "returns": "return" }
+      }
+    ],
+    "no-console": "warn",
+    "no-constant-condition": "error",
+    "no-inner-declarations": ["error", "functions"],
+    "max-nested-callbacks": ["error", { "max": 3 }],
+    "no-multi-spaces": "error",
+    "curly": "off",
+    "strict": ["error", "global"],
+    "brace-style": "error",
+    "no-multiple-empty-lines": [
+      "error",
+      {
+        "max": 2,
+        "maxBOF": 0,
+        "maxEOF": 0
+      }
+    ],
+    "one-var": [
+      "error",
+      {
+        "var": "never",
+        "let": "never",
+        "const": "never"
+      }
+    ],
+    "quote-props": ["error", "consistent"],
+    "quotes": ["error", "single", { "allowTemplateLiterals": true, "avoidEscape": true }],
+    "no-return-assign": "off",
+    "no-unused-expressions": "off",
+    "no-invalid-this": "off",
+    "consistent-return": "off",
+    "no-nested-ternary": "off",
+    "no-extend-native": "off",
+    "class-methods-use-this": "off",
+    "no-void": "off",
+    "react/no-unescaped-entities": "off",
+    "no-underscore-dangle": "off",
+    "import/prefer-default-export": "off",
+    "default-case": "off",
+    "no-use-before-define": "off",
+    "import/no-named-as-default": "off",
+    "object-curly-newline": ["error", { "consistent": true }],
+    "import/no-cycle": "off",
+    "prefer-const": "off",
+    "max-len": "off",
+    "no-param-reassign": "off",
+    "arrow-parens": "off",
+    "no-plusplus": "off",
+    "array-callback-return": "off",
+    "no-restricted-syntax": "off",
+    "no-case-declarations": "off"
+  }
+}
