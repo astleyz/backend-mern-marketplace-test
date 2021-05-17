@@ -1,6 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import coursesRoutes from './routes/courses.routes.js';
 import authRoutes from './routes/auth.routes.js';
@@ -9,13 +11,15 @@ dotenv.config();
 const PORT = process.env.API_PORT || 5900;
 
 const app = express();
-app.disable('x-powered-by');
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors({ maxAge: 3600 }));
+app.disable('x-powered-by');
+app.use(cors());
+app.use(cookieParser());
+app.use(morgan('dev'));
 
-app.use('/courses', coursesRoutes);
 app.use('/auth', authRoutes);
+app.use('/courses', coursesRoutes);
 
 async function start() {
   try {

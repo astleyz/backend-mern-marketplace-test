@@ -2,9 +2,24 @@ import { Router } from 'express';
 import { check, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import auth from '../middleware/auth.middleware.js';
 import User from '../models/user.js';
+import Token from '../models/token.js';
+import config from '../config.js';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  saveToDBRefreshToken,
+} from '../helpers/authHelper.js';
 
 const router = Router();
+
+const updateTokens = async (userId, extendRefreshTokenMaxAge) => {
+  const accessToken = generateAccessToken(userId);
+  const refreshToken = generateRefreshToken(userId, extendRefreshTokenMaxAge);
+  await saveToDBRefreshToken(refreshToken, userId);
+  return { accessToken, refreshToken };
+};
 
 // /auth/login
 router.post(
@@ -23,14 +38,19 @@ router.post(
         });
       }
 
-      const { email, password } = req.body;
-      const user = await User.findOne({ email }).lean();
-      if (!user) return res.status(400).json({ message: 'Wrong email or password' });
-      const isMatch = await bcrypt.compare(password, user.password);
+      const { email, password, rememberme } = req.body;
+      const candidate = await User.findOne({ email }).lean();
+      if (!candidate) return res.status(400).json({ message: 'Wrong email or password' });
+      const isMatch = await bcrypt.compare(password, candidate.password);
       if (!isMatch) return res.status(400).json({ message: 'Wrong email or password' });
 
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-      res.json({ token, userId: user.id });
+      const tokens = await updateTokens(candidate._id, rememberme);
+      const cookieOptions = {
+        ...config.refreshCookie,
+        maxAge: rememberme ? config.refreshCookie.extendedMaxAge : config.refreshCookie.maxAge,
+      };
+      res.cookie('refresh.token', tokens.refreshToken, cookieOptions);
+      res.json({ token: `Bearer ${tokens.accessToken}` });
     } catch (e) {
       res.status(500).json({ message: 'Server Error' });
     }
@@ -58,19 +78,63 @@ router.post(
 
       const { login, email, password, repeatPassword: rPassword } = req.body;
       const candidates = await User.find({ $or: [{ login }, { email }] }).lean();
-      if (candidates.flat().length) {
+      if (candidates.length) {
         return res.status(400).json({ message: 'Login or email is not available' });
       }
       if (password !== rPassword) return res.status(400).json({ message: 'Password mismatch' });
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = new User({ login, email, password: hashedPassword });
+      res.user = user;
       await user.save();
-      res.status(201).json({ message: 'User created' });
+      const tokens = await updateTokens(user._id);
+
+      res.cookie('refresh.token', tokens.refreshToken, config.refreshCookie);
+      res.status(201).json({ token: `Bearer ${tokens.accessToken}` });
     } catch (e) {
+      User.findByIdAndRemove(res.user._id).catch(err => console.log(err.message));
       res.status(500).json({ message: 'Server Error' });
     }
   }
 );
+
+// /auth/refresh-tokens
+router.post('/refresh-tokens', async (req, res) => {
+  const refreshToken = req.cookies['refresh.token'];
+  try {
+    const oldDBToken = await Token.findOneAndRemove({ token: refreshToken }).lean();
+    res.clearCookie('refresh.token', { ...config.refreshCookie, maxAge: 0 });
+    if (!oldDBToken) return res.status(401).json();
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    if (decoded.type !== 'refresh') {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    const tokens = await updateTokens(oldDBToken.userId);
+    res.cookie('refresh.token', tokens.refreshToken, config.refreshCookie);
+    res.json({ token: `Bearer ${tokens.accessToken}` });
+  } catch (e) {
+    if (e instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: 'Token expired' });
+    }
+    if (e instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// /auth/logout
+router.post('/logout', auth, async (req, res) => {
+  const refreshToken = req.cookies['refresh.token'];
+  try {
+    await Token.deleteOne({ token: refreshToken });
+    res.clearCookie('refresh.token', { ...config.refreshCookie, maxAge: 0 });
+    res.redirect('/');
+  } catch (e) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 export default router;

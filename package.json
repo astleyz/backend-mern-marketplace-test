@@ -12,6 +12,18 @@
   },
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.10.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.12.3",
+    "morgan": "^1.10.0",
+    "rimraf": "^3.0.2"
+  },
   "devDependencies": {
     "@babel/cli": "^7.13.14",
     "@babel/core": "^7.13.14",
@@ -25,15 +37,14 @@
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1"
   },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
-    "express": "^4.17.1",
-    "express-validator": "^6.10.0",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.3",
-    "rimraf": "^3.0.2"
+  "prettier": {
+    "tabWidth": 2,
+    "singleQuote": true,
+    "quoteProps": "consistent",
+    "trailingComma": "es5",
+    "jsxBracketSameLine": false,
+    "arrowParens": "avoid",
+    "printWidth": 100
   },
   "babel": {
     "presets": [

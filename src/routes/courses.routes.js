@@ -4,6 +4,7 @@ import Course from '../models/course.js';
 import Comment from '../models/comment.js';
 
 const app = express();
+app.disable('x-powered-by');
 
 // /courses/
 app.get('/', async (req, res) => {
