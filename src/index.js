@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import coursesRoutes from './routes/courses.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
 
 dotenv.config();
 const PORT = process.env.API_PORT || 5900;
@@ -14,12 +15,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.disable('x-powered-by');
-app.use(cors());
+app.use(cors({ maxAge: 3600, credentials: true, origin: true }));
+
 app.use(cookieParser());
 app.use(morgan('dev'));
 
 app.use('/auth', authRoutes);
 app.use('/courses', coursesRoutes);
+app.use('/user', userRoutes);
 
 async function start() {
   try {

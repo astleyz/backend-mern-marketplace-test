@@ -2,6 +2,7 @@ import express from 'express';
 import auth from '../middleware/auth.middleware.js';
 import Course from '../models/course.js';
 import Comment from '../models/comment.js';
+import { fetchUdemyCourseAndParse } from '../services/fetchUdemyCourse.js';
 
 const app = express();
 app.disable('x-powered-by');
@@ -19,6 +20,8 @@ app.get('/', async (req, res) => {
 // /courses/create   создать новый курс, юзер должен быть авторизован
 app.post('/create', auth, async (req, res) => {
   try {
+    const courseUdemy = await fetchUdemyCourseAndParse(req.body.link);
+
     const course = new Course({
       title: req.body.title,
       description: req.body.description,

@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { check, validationResult } from 'express-validator';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import auth from '../middleware/auth.middleware.js';
 import User from '../models/user.js';
 import Token from '../models/token.js';
 import config from '../config.js';
@@ -46,8 +45,10 @@ router.post(
 
       const tokens = await updateTokens(candidate._id, rememberme);
       const cookieOptions = {
-        ...config.refreshCookie,
-        maxAge: rememberme ? config.refreshCookie.extendedMaxAge : config.refreshCookie.maxAge,
+        ...config.jwt.refreshCookie,
+        maxAge: rememberme
+          ? config.jwt.refreshCookie.extendedMaxAge
+          : config.jwt.refreshCookie.maxAge,
       };
       res.cookie('refresh.token', tokens.refreshToken, cookieOptions);
       res.json({ token: `Bearer ${tokens.accessToken}` });
@@ -89,7 +90,7 @@ router.post(
       await user.save();
       const tokens = await updateTokens(user._id);
 
-      res.cookie('refresh.token', tokens.refreshToken, config.refreshCookie);
+      res.cookie('refresh.token', tokens.refreshToken, config.jwt.refreshCookie);
       res.status(201).json({ token: `Bearer ${tokens.accessToken}` });
     } catch (e) {
       User.findByIdAndRemove(res.user._id).catch(err => console.log(err.message));
@@ -103,7 +104,7 @@ router.post('/refresh-tokens', async (req, res) => {
   const refreshToken = req.cookies['refresh.token'];
   try {
     const oldDBToken = await Token.findOneAndRemove({ token: refreshToken }).lean();
-    res.clearCookie('refresh.token', { ...config.refreshCookie, maxAge: 0 });
+    res.clearCookie('refresh.token', { ...config.jwt.refreshCookie, maxAge: 0 });
     if (!oldDBToken) return res.status(401).json();
 
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
@@ -112,7 +113,7 @@ router.post('/refresh-tokens', async (req, res) => {
     }
 
     const tokens = await updateTokens(oldDBToken.userId);
-    res.cookie('refresh.token', tokens.refreshToken, config.refreshCookie);
+    res.cookie('refresh.token', tokens.refreshToken, config.jwt.refreshCookie);
     res.json({ token: `Bearer ${tokens.accessToken}` });
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
@@ -126,12 +127,14 @@ router.post('/refresh-tokens', async (req, res) => {
 });
 
 // /auth/logout
-router.post('/logout', auth, async (req, res) => {
+router.post('/logout', async (req, res) => {
   const refreshToken = req.cookies['refresh.token'];
+  if (!refreshToken) return res.status(401).send();
+
   try {
     await Token.deleteOne({ token: refreshToken });
-    res.clearCookie('refresh.token', { ...config.refreshCookie, maxAge: 0 });
-    res.redirect('/');
+    res.clearCookie('refresh.token', { ...config.jwt.refreshCookie, maxAge: 0 });
+    res.send();
   } catch (e) {
     res.status(500).json({ message: 'Server Error' });
   }
