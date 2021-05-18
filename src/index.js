@@ -32,7 +32,7 @@ async function start() {
       useCreateIndex: true,
       useFindAndModify: false,
       family: 4,
-      autoIndex: false,
+      autoIndex: true,
     });
 
     app.listen(PORT, () => console.log(`hello from ${PORT} ...`));

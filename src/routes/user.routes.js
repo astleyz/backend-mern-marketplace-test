@@ -7,7 +7,7 @@ const router = Router();
 
 router.get('/', auth, (req, res) => {
   res.status(200).json({
-    name: 'Jackie Chan',
+    name: req.user.login,
     img:
       'https://thumbs.dreamstime.com/b/cute-smiling-girl-avatar-logo-flat-vector-illustration-logo-character-design-cute-smiling-girl-avatar-logo-flat-vector-122640507.jpg',
   });

@@ -10,28 +10,38 @@ app.disable('x-powered-by');
 // /courses/
 app.get('/', async (req, res) => {
   try {
-    const courses = await Course.find().lean().populate('ownerId', 'title description videoLength');
+    let courses = await Course.find()
+      .lean()
+      .select('id title subTitle img authorNames materials.info -_id');
+    courses = courses.map(it => {
+      it.fullLength = it.materials.info;
+      delete it.materials;
+      return it;
+    });
     res.status(200).json(courses);
   } catch (e) {
-    res.status(400).json({ message: e.message });
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
-// /courses/create   создать новый курс, юзер должен быть авторизован
+// /courses/create
 app.post('/create', auth, async (req, res) => {
   try {
     const courseUdemy = await fetchUdemyCourseAndParse(req.body.link);
-
-    const course = new Course({
-      title: req.body.title,
-      description: req.body.description,
-      author: req.body.author,
-      videoLength: req.body.videoLength,
-    });
-    // await course.save();
-    res.status(201).json(course);
+    const course = new Course({ ...courseUdemy, ownerId: req.user._id });
+    req.user.courses.push(course._id);
+    await course.save();
+    await req.user.save();
+    res.status(201).json();
   } catch (e) {
-    res.status(400).json({ message: e.message });
+    if (e.code === 11000) return res.status(409).json({ message: 'Course already exist' });
+    if (e.response?.statusCode === 403) {
+      return res.status(403).json({ message: 'Something wrong. Check the link or change ip' });
+    }
+    if (e.response?.statusCode === 404) {
+      return res.status(404).json({ message: 'Link is not valid' });
+    }
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -39,30 +49,46 @@ app.post('/create', auth, async (req, res) => {
 app
   .route('/:id')
   .get(async (req, res) => {
-    // отдать курс по айди
     try {
-      const course = await Course.findById(req.params.id).lean();
+      const course = await Course.findOne({ id: req.params.id })
+        .lean()
+        .populate('ownerId', 'login -_id')
+        .select('-comments, -_id');
+
+      if (!course) return res.status(404).json({ message: 'Not Found' });
       res.status(200).json(course);
     } catch (e) {
-      res.status(400).json({ message: e.message });
+      res.status(500).json({ message: 'Server Error' });
     }
   })
   .patch(auth, async (req, res) => {
-    // юзер редактирует свой курс
     try {
-      const course = await Course.findByIdAndUpdate(req.params.id, req.body);
-      res.status(202).json(course);
+      const { id } = req.body;
+      const user = await req.user.populate('courses').execPopulate();
+      const editingCourse = user.courses.find(c => c.id === req.body.id);
+      if (req.params.id !== id || !editingCourse) {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      await req.user.updateCourse(editingCourse, req.body);
+      const updatedCourse = await Course.findOne({ id })
+        .lean()
+        .populate('ownerId', 'login -_id')
+        .select('-comments, -_id');
+      res.status(202).json(updatedCourse);
     } catch (e) {
-      res.status(400).json({ message: e.message });
+      res.status(500).json({ message: 'Server Error' });
     }
   })
   .delete(auth, async (req, res) => {
-    // юзер удаляет свой курс
     try {
-      await Course.findByIdAndRemove(req.params.id);
-      res.status(202);
+      let course = await Course.findOneAndRemove({
+        id: req.params.id,
+        ownerId: req.user._id,
+      });
+      if (!course) return res.status(403).json({ message: 'Forbidden' });
+      res.status(202).json();
     } catch (e) {
-      res.status(400).json({ message: e.message });
+      res.status(500).json({ message: 'Server Error' });
     }
   });
 

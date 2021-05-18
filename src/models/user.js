@@ -5,7 +5,15 @@ const UserSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   img: String,
-  courses: [],
+  courses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
 });
+
+UserSchema.methods.updateCourse = function (editingCourse, body) {
+  delete body.id;
+  delete body.ownerId;
+  editingCourse.instructor.names = body.instructor.names;
+  editingCourse.instructor.jobs = body.instructor.jobs;
+  return editingCourse.save();
+};
 
 export default mongoose.model('User', UserSchema);

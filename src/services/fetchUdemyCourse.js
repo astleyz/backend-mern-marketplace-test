@@ -8,8 +8,13 @@ export async function fetchUdemyCourseAndParse(link) {
     const $ = cheerio.load(response.body);
 
     let course = {};
+    course.id = new URL(link).pathname.match(/(?<=\/)[\w-]+(?=\/?$)/g)[0];
     course.title = $('title').text().split(' | Udemy')[0];
     course.subTitle = $('.udlite-text-md.clp-lead__headline').text().trim();
+    course.img = $('.intro-asset--img-aspect--1UbeZ img')[0]
+      .attribs.srcset.split(',')[1]
+      .split('?')[0]
+      .trim();
     course.authors = $('.instructor-links--names--7UPZj > span').text();
     course.authorNames = $('.instructor-links--names--7UPZj > a > span')
       .map((i, el) => $(el).text())
@@ -34,21 +39,21 @@ export async function fetchUdemyCourseAndParse(link) {
       .html();
     course.forWho = {};
     course.forWho.title = dBlock.find('.udlite-heading-xl.styles--audience__title--1Sob_').text();
-    course.forWho.ul = dBlock
+    course.forWho.items = dBlock
       .find('.styles--audience__list--3NCqY')
       .children()
       .map((i, el) => $(el).text())
-      .get(); // ?
+      .get();
     const lBlock = $('div[data-purpose="course-curriculum"]');
-    course.lessons = {};
-    course.lessons.title = lBlock.find('h2[data-purpose="curriculum-header"]').text();
-    course.lessons.info = lBlock.find('.curriculum--content-length--1XzLS').text();
-    course.lessons.sections = lBlock
+    course.materials = {};
+    course.materials.title = lBlock.find('h2[data-purpose="curriculum-header"]').text();
+    course.materials.info = lBlock.find('.curriculum--content-length--1XzLS').text();
+    course.materials.sections = lBlock
       .find('.section--panel--1tqxC')
       .map((i, el) => {
         const lesson = {};
         lesson.title = $(el).find('.section--section-title--8blTh').text();
-        lesson.fullLenth = $(el).find('.section--section-content--9kwnY').text();
+        lesson.fullLength = $(el).find('.section--section-content--9kwnY').text();
         const ul = $(el).find('.unstyled-list.udlite-block-list');
         lesson.lessons = [];
         $(ul)
