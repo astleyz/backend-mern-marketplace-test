@@ -1,6 +1,7 @@
 import express from 'express';
 import auth from '../middleware/auth.middleware.js';
 import Course from '../models/course.js';
+import User from '../models/user.js';
 import Comment from '../models/comment.js';
 import { fetchUdemyCourseAndParse } from '../services/fetchUdemyCourse.js';
 
@@ -24,7 +25,7 @@ app.get('/', async (req, res) => {
   }
 });
 
-// /courses/create
+// /courses/create    create a course
 app.post('/create', auth, async (req, res) => {
   try {
     const courseUdemy = await fetchUdemyCourseAndParse(req.body.link);
@@ -81,9 +82,12 @@ app
   })
   .delete(auth, async (req, res) => {
     try {
-      let course = await Course.findOneAndRemove({
+      let course = await Course.findOneAndDelete({
         id: req.params.id,
         ownerId: req.user._id,
+      });
+      await User.findByIdAndUpdate(req.user._id, {
+        $pull: { courses: course._id },
       });
       if (!course) return res.status(403).json({ message: 'Forbidden' });
       res.status(202).json();
@@ -92,28 +96,56 @@ app
     }
   });
 
-// /courses/:id/:lesson/comments
-app.get('/:id/:lesson/comments', auth, async (req, res) => {
-  // получить все комменты к занятию
+// /courses/:id/:lesson    get the lesson and comments
+app.get('/:id/:lesson', auth, async (req, res) => {
+  const { section: snumber, lesson: lnumber } = req.query;
+  if (req.params.lesson !== 'showtopic') return res.status(404).json();
+  try {
+    const course = await Course.findOne({ id: req.params.id })
+      .populate({
+        path: 'materials.sections.lessons.comments',
+        select: '-_id',
+        populate: {
+          path: 'ownerId',
+          select: '-email -password -courses -_id',
+        },
+      })
+      .lean();
+    if (!course) return res.status(404).json();
+
+    const lesson = {
+      courseName: course.title,
+      sectionName: course.materials.sections[`${snumber - 1}`].title,
+      lessonName: course.materials.sections[`${snumber - 1}`].lessons[`${lnumber - 1}`].name,
+      comments: course.materials.sections[`${snumber - 1}`].lessons[`${lnumber - 1}`].comments,
+    };
+
+    return res.status(200).json(lesson);
+  } catch (e) {
+    res.status(500).json({ message: 'Server Error' });
+  }
 });
 
-// /courses/:id/:lesson/comment    оставить коммент к занятию
-app.post('/:id/:lesson/comment', auth, async (req, res) => {
+// /courses/:id/:lesson    leave a comment in lesson
+app.post('/:id/:lesson', auth, async (req, res) => {
+  const { section: snumber, lesson: lnumber } = req.query;
+  if (req.params.lesson !== 'showtopic') return res.status(403).json();
+
+  const comment = new Comment({
+    ownerId: req.user._id,
+    content: req.body.comment,
+  });
+
   try {
-    const course = await Course.findById(req.params.id);
-    const comment = new Comment({
-      author: req.user,
-      content: req.body,
-    });
-    course.lessons.find(lesson => {
-      if (lesson.title === req.params.lesson) {
-        course.lessons.comments.push(comment);
-      }
-    });
+    const course = await Course.findOne({ id: req.params.id });
+    const { comments } = course.materials.sections[`${snumber - 1}`].lessons[`${lnumber - 1}`];
+
+    comments.push(comment._id);
     await comment.save();
     await course.save();
+    res.status(200).json();
   } catch (e) {
-    res.status(400).json({ message: e.message });
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 

@@ -34,12 +34,10 @@ const CourseSchema = new mongoose.Schema({
           {
             name: String,
             length: String,
-            comments: [
-              {
-                authorId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
-                commentId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Comment' },
-              },
-            ],
+            comments: {
+              type: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Comment' }],
+              default: [],
+            },
           },
         ],
       },

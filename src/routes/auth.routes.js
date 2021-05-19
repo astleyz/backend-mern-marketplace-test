@@ -62,7 +62,7 @@ router.post(
 router.post(
   '/register',
   [
-    check('login', 'Login minimum length is 3').trim().isLength({ min: 3 }),
+    check('login', 'Login length should be 3-20 symbols').trim().isLength({ min: 3, max: 20 }),
     check('email', 'Email is not correct').normalizeEmail().isEmail(),
     check('password', 'Password minimum length is 5').isLength({ min: 5 }),
     check('repeatPassword', 'Password mismatch').exists(),
@@ -93,7 +93,7 @@ router.post(
       res.cookie('refresh.token', tokens.refreshToken, config.jwt.refreshCookie);
       res.status(201).json({ token: `Bearer ${tokens.accessToken}` });
     } catch (e) {
-      User.findByIdAndRemove(res.user._id).catch(err => console.log(err.message));
+      User.findByIdAndRemove(res.user._id).catch(err => console.log(err));
       res.status(500).json({ message: 'Server Error' });
     }
   }

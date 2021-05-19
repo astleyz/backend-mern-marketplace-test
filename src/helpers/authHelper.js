@@ -23,7 +23,7 @@ export const saveToDBRefreshToken = async (newToken, userId) => {
     const dbToken = new Token({ token: newToken, userId });
     await dbToken.save();
   } catch (e) {
-    Token.deleteOne({ token: newToken }).catch(err => console.log(err.message));
+    Token.deleteOne({ token: newToken }).catch(err => console.log(err));
     throw e;
   }
 };

@@ -4,8 +4,11 @@ const UserSchema = new mongoose.Schema({
   login: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  img: String,
-  courses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+  img: { type: String, default: '' },
+  courses: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+    default: [],
+  },
 });
 
 UserSchema.methods.updateCourse = function (editingCourse, body) {
