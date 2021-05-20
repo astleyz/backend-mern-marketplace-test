@@ -42,6 +42,10 @@ const CourseSchema = new mongoose.Schema({
         ],
       },
     ],
+    access: {
+      private: { type: Boolean, default: false },
+      users: [{ type: mongoose.Schema.Types.ObjectId, unique: true, ref: 'User' }],
+    },
   },
   instructor: {
     title: { type: String, required: true },

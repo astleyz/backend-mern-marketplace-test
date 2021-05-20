@@ -1,42 +1,24 @@
 import { Router } from 'express';
-import { check, validationResult } from 'express-validator';
+import { check } from 'express-validator';
 import auth from '../middleware/auth.middleware.js';
-import User from '../models/user.js';
+import UserController from '../controllers/user.controller.js';
 
 const router = Router();
 
-router.get('/', auth, (req, res) => {
-  res.status(200).json({
-    name: req.user.login,
-    img: req.user.img,
-  });
-});
+// /user
+router.get('/', auth, UserController.getUserData);
 
+// /user
 router.put(
   '/',
-  [check('name', 'Name length should be 3-20 symbols').trim().isLength({ min: 3, max: 20 })],
+  [
+    check('name', 'Name length should be 3-20 symbols')
+      .isLength({ min: 3, max: 20 })
+      .custom(value => !/\s/.test(value))
+      .withMessage("Login shouldn't contain spaces"),
+  ],
   auth,
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ message: errors.errors[0].msg });
-    }
-
-    try {
-      const user = await User.findByIdAndUpdate(
-        req.user._id,
-        { login: req.body.name },
-        { new: true }
-      );
-
-      res.status(200).json({
-        name: user.login,
-        img: user.img,
-      });
-    } catch (e) {
-      return res.status(500).json({ message: 'Server Error' });
-    }
-  }
+  UserController.putUsername
 );
 
 export default router;

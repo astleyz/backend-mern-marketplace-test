@@ -11,11 +11,20 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-UserSchema.methods.updateCourse = function (editingCourse, body) {
+UserSchema.methods.updateCourse = async function (editingCourse, body) {
   delete body.id;
   delete body.ownerId;
-  editingCourse.instructor.names = body.instructor.names;
-  editingCourse.instructor.jobs = body.instructor.jobs;
+  body.instructor?.names ? (editingCourse.instructor.names = body.instructor.names) : null;
+  body.instructor?.jobs ? (editingCourse.instructor.jobs = body.instructor.jobs) : null;
+  if (body.private && body.accessedUser) {
+    const candidate = await mongoose.model('User').findOne({ login: body.accessedUser });
+    if (!candidate) throw new Error('Wrong user');
+    editingCourse.materials.access.users.push(candidate._id);
+  }
+  if (body.private) {
+    editingCourse.materials.access.private = true;
+  }
+
   return editingCourse.save();
 };
 
