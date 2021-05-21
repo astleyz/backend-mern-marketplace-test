@@ -25,11 +25,13 @@ export default {
     'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
     'connection': 'keep-alive',
     'referer': 'https://www.google.com/search?q=let+me+google+that&oq=let+me+google+that&ie=UTF-8',
-    // 'cache-control': 'no-cache',
-    // 'pragma': 'no-cache',
-    // 'sec-fetch-dest': 'document',
-    // 'sec-fetch-mode': 'navigate',
-    // 'sec-fetch-site': 'same-origin',
-    // 'upgrade-insecure-requests': 1,
+  },
+  constant: {
+    UPLOAD_DESTIONATION: 'uploads',
+    ALLOWED_MIME_TYPES: {
+      'image/png': 'png',
+      'image/jpg': 'jpg',
+      'image/jpeg': 'jpeg',
+    },
   },
 };

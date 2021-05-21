@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import auth from '../middleware/auth.middleware.js';
+import upload from '../middleware/upload.middleware.js';
 import UserController from '../controllers/user.controller.js';
 
 const router = Router();
@@ -20,5 +21,8 @@ router.put(
   auth,
   UserController.putUsername
 );
+
+// /user/avatar
+router.patch('/avatar', auth, upload.single('avatar'), UserController.changeAvatar);
 
 export default router;

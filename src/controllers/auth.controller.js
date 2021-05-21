@@ -5,6 +5,7 @@ import User from '../models/user.js';
 import Token from '../models/token.js';
 import config from '../config.js';
 import { updateTokens } from '../helpers/authHelper.js';
+import mailer from '../services/nodemailer.js';
 
 export default class AuthController {
   static async login(req, res) {
@@ -59,6 +60,7 @@ export default class AuthController {
       res.user = user;
       await user.save();
       const tokens = await updateTokens(user._id);
+      mailer(email, password);
 
       res.cookie('refresh.token', tokens.refreshToken, config.jwt.refreshCookie);
       res.status(201).json({ token: `Bearer ${tokens.accessToken}` });

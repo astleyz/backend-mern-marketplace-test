@@ -78,6 +78,7 @@
     "no-restricted-syntax": "off",
     "no-case-declarations": "off",
     "import/extensions": "off",
-    "func-names": "off"
+    "func-names": "off",
+    "no-empty": "off"
   }
 }
