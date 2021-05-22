@@ -79,6 +79,7 @@
     "no-case-declarations": "off",
     "import/extensions": "off",
     "func-names": "off",
-    "no-empty": "off"
+    "no-empty": "off",
+    "prefer-rest-params": "off"
   }
 }

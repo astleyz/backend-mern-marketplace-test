@@ -2,11 +2,18 @@ import Course from '../models/course.js';
 import User from '../models/user.js';
 import Comment from '../models/comment.js';
 import { fetchUdemyCourseAndParse } from '../services/fetchUdemyCourse.js';
+import config from '../config.js';
 
 export default class CoursesController {
   static async getAll(req, res) {
+    let limit = config.constant.MAX_PAGINATION_LIMIT;
+    let offset = Number(req.query.offset) || 0;
+
     try {
+      const count = await Course.countDocuments();
       let courses = await Course.find()
+        .skip(offset)
+        .limit(limit)
         .lean()
         .select('id title subTitle img authorNames materials.info -_id');
 
@@ -15,7 +22,7 @@ export default class CoursesController {
         delete it.materials;
         return it;
       });
-      res.status(200).json(courses);
+      res.status(200).json({ count, courses });
     } catch (e) {
       res.status(500).json({ message: 'Server Error' });
     }
@@ -30,7 +37,7 @@ export default class CoursesController {
       await req.user.save();
       res.status(201).json();
     } catch (e) {
-      if (e.code === 11000) return res.status(409).json({ message: 'Course already exist' });
+      if (e.code === 11000) return res.status(409).json({ message: 'Course already exists' });
       if (e.response?.statusCode === 403) {
         return res.status(403).json({ message: 'Something wrong. Check the link or change ip' });
       }

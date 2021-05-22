@@ -33,5 +33,6 @@ export default {
       'image/jpg': 'jpg',
       'image/jpeg': 'jpeg',
     },
+    MAX_PAGINATION_LIMIT: 10,
   },
 };

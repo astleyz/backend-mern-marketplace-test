@@ -40,7 +40,7 @@ export default class UserController {
   static async changeAvatar(req, res) {
     try {
       const imgName = req.user.img.split('uploads/')[1];
-      const isAvatarExist = await exists(path.resolve(path.join('uploads', imgName)));
+      const isAvatarExist = await exists(path.resolve(path.join('uploads', String(imgName))));
       if (isAvatarExist) {
         await unlink(path.resolve(path.join('uploads', imgName)));
       }
@@ -48,7 +48,7 @@ export default class UserController {
       await req.user.save();
       res.status(200).json();
     } catch (e) {
-      res.status(500).json('Server Error');
+      res.status(500).json({ message: 'Server Error' });
     }
   }
 }

@@ -8,20 +8,22 @@ import config from './config.js';
 import coursesRoutes from './routes/courses.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import jsonapi from './middleware/jsonapi.middleware.js';
 
 dotenv.config();
 const PORT = process.env.API_PORT || 5900;
 const { UPLOAD_DESTIONATION } = config.constant;
-
 const app = express();
+
 app.use(`/${UPLOAD_DESTIONATION}`, express.static(`${UPLOAD_DESTIONATION}`));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.disable('x-powered-by');
 app.use(cors({ maxAge: 3600, credentials: true, origin: true }));
 
-app.use(cookieParser());
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(morgan('dev'));
+app.use(jsonapi);
 
 app.use('/auth', authRoutes);
 app.use('/courses', coursesRoutes);

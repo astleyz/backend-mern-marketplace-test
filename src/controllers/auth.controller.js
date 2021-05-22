@@ -31,7 +31,7 @@ export default class AuthController {
           ? config.jwt.refreshCookie.extendedMaxAge
           : config.jwt.refreshCookie.maxAge,
       };
-      res.cookie('refresh.token', tokens.refreshToken, cookieOptions);
+      res.cookie('refresh.token', tokens.refreshToken, { ...cookieOptions, signed: true });
       res.json({ token: `Bearer ${tokens.accessToken}` });
     } catch (e) {
       res.status(500).json({ message: 'Server Error' });
@@ -71,7 +71,7 @@ export default class AuthController {
   }
 
   static async refresh(req, res) {
-    const refreshToken = req.cookies['refresh.token'];
+    const refreshToken = req.signedCookies['refresh.token'];
     try {
       const oldDBToken = await Token.findOneAndRemove({ token: refreshToken }).lean();
       res.clearCookie('refresh.token', { ...config.jwt.refreshCookie, maxAge: 0 });
