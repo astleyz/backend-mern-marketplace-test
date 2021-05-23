@@ -11,7 +11,7 @@ import userRoutes from './routes/user.routes.js';
 import jsonapi from './middleware/jsonapi.middleware.js';
 
 dotenv.config();
-const PORT = process.env.API_PORT || 5900;
+const PORT = process.env.API_PORT || 4000;
 const { UPLOAD_DESTIONATION } = config.constant;
 const app = express();
 

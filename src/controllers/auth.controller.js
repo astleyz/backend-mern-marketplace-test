@@ -62,7 +62,11 @@ export default class AuthController {
       const tokens = await updateTokens(user._id);
       mailer(email, password);
 
-      res.cookie('refresh.token', tokens.refreshToken, config.jwt.refreshCookie);
+      res.cookie('refresh.token', tokens.refreshToken, {
+        ...config.jwt.refreshCookie,
+        signed: true,
+      });
+
       res.status(201).json({ token: `Bearer ${tokens.accessToken}` });
     } catch (e) {
       User.findByIdAndRemove(res.user._id).catch(err => console.log(err));
@@ -83,7 +87,11 @@ export default class AuthController {
       }
 
       const tokens = await updateTokens(oldDBToken.userId);
-      res.cookie('refresh.token', tokens.refreshToken, config.jwt.refreshCookie);
+      res.cookie('refresh.token', tokens.refreshToken, {
+        ...config.jwt.refreshCookie,
+        signed: true,
+      });
+
       res.json({ token: `Bearer ${tokens.accessToken}` });
     } catch (e) {
       if (e instanceof jwt.TokenExpiredError) {
@@ -97,7 +105,7 @@ export default class AuthController {
   }
 
   static async logout(req, res) {
-    const refreshToken = req.cookies['refresh.token'];
+    const refreshToken = req.signedCookies['refresh.token'];
     if (!refreshToken) return res.status(401).send();
 
     try {
