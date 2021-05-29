@@ -19,3 +19,9 @@ Start
   yarn install
   yarn dev
 ```
+
+## Running inside docker
+
+```javascript
+docker-compose up -d
+```

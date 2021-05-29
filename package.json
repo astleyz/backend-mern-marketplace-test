@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.js",
-  "type": "module",
   "scripts": {
-    "build": "babel ./src --out-dir ./dist",
+    "build": "rimraf dist && babel src -d dist",
+    "start": "node dist/index.js",
     "dev": "nodemon --exec babel-node src",
     "dev:debug": "babel src -d dist -s --delete-dir-on-start",
-    "lint": "eslint . --ext .js,.json"
+    "lint": "eslint . --ext .js,.json",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 delete ecosystem.config.js",
+    "autocannon": "autocannon",
+    "clinic": "rimraf .clinic && clinic flame --on-port 'autocannon 127.0.0.1:4000/courses -c 100 -d 5' -- node src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -27,21 +31,25 @@
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "nodemailer": "^6.6.0",
-    "rimraf": "^3.0.2",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.13.14",
     "@babel/core": "^7.13.14",
     "@babel/node": "^7.13.13",
+    "@babel/plugin-transform-runtime": "^7.14.3",
     "@babel/preset-env": "^7.13.12",
+    "autocannon": "^7.3.0",
+    "clinic": "^9.0.0",
     "eslint": "^7.23.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.3.1",
     "nodemon": "^2.0.7",
-    "prettier": "^2.2.1"
+    "pm2": "^4.5.6",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2"
   },
   "prettier": {
     "tabWidth": 2,
@@ -55,6 +63,11 @@
   "babel": {
     "presets": [
       "@babel/preset-env"
+    ],
+    "plugins": [
+      [
+        "@babel/transform-runtime"
+      ]
     ],
     "sourceMaps": true,
     "retainLines": true
