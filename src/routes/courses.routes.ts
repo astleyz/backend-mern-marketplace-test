@@ -1,9 +1,9 @@
-import express from 'express';
-import auth from '../middleware/auth.middleware.js';
-import role from '../middleware/role.middleware.js';
-import CoursesController from '../controllers/courses.controller.js';
+import express, { Application } from 'express';
+import auth from '../middleware/auth.middleware';
+import role from '../middleware/role.middleware';
+import CoursesController from '../controllers/courses.controller';
 
-const app = express();
+const app: Application = express();
 app.disable('x-powered-by');
 
 // /courses/

@@ -1,4 +1,30 @@
-export default {
+export type ConfigType = {
+  jwt: {
+    access: {
+      type: 'access';
+      expiresIn: string;
+    };
+    refresh: {
+      type: 'refresh';
+      expiresIn: string;
+      extendedMaxAge: string;
+    };
+    refreshCookie: {
+      maxAge: number;
+      extendedMaxAge: number;
+      httpOnly: boolean;
+      path: string;
+    };
+  };
+  gotHeaders: Record<string, string>;
+  constant: {
+    UPLOAD_DESTIONATION: string;
+    ALLOWED_MIME_TYPES: Record<string, string>;
+    MAX_PAGINATION_LIMIT: number;
+  };
+};
+
+const config: ConfigType = {
   jwt: {
     access: {
       type: 'access',
@@ -36,3 +62,5 @@ export default {
     MAX_PAGINATION_LIMIT: 10,
   },
 };
+
+export default config;

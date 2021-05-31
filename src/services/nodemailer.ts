@@ -13,7 +13,7 @@ let transporter = nodemailer.createTransport(
   { from: 'no reply<no.reply@openmail.cc>' }
 );
 
-const mailer = async (email, password) => {
+const mailer = async (email: string, password: string): Promise<void> => {
   const message = {
     to: email,
     subject: 'You successfully registered',

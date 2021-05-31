@@ -1,7 +1,12 @@
-import multer from 'multer';
+import type { Request } from 'express';
+import multer, { FileFilterCallback } from 'multer';
 import { v4 as uuid } from 'uuid';
 import moment from 'moment';
-import config from '../config.js';
+import config from '../config';
+
+interface FileCallback extends FileFilterCallback {
+  (msg: string, filename: null): void;
+}
 
 const { UPLOAD_DESTIONATION, ALLOWED_MIME_TYPES } = config.constant;
 
@@ -17,7 +22,7 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (req: Request, file: Express.Multer.File, cb: FileCallback) => {
   const ext = ALLOWED_MIME_TYPES[file.mimetype];
   if (!ext) return cb('Not allowed Mime-Type', null);
   cb(null, true);

@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "module": "commonjs",
+    "strict": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "removeComments": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "downlevelIteration": true
+  },
+  "include": ["src"],
+  "files": ["src/index.ts", "src/types.d.ts"],
+  "ts-node": { "files": true }
+}

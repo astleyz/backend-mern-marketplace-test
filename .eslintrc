@@ -1,4 +1,12 @@
 {
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "impliedStrict": true
+    }
+  },
   "env": {
     "es2020": true,
     "es6": true,
@@ -7,13 +15,12 @@
   "extends": [
     "airbnb/base",
     "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/typescript",
     "plugin:import/errors",
     "plugin:import/warnings"
   ],
-  "parserOptions": {
-    "ecmaVersion": 2020,
-    "sourceType": "module"
-  },
+
   "plugins": ["prettier"],
   "rules": {
     "prettier/prettier": "error",
@@ -80,6 +87,14 @@
     "import/extensions": "off",
     "func-names": "off",
     "no-empty": "off",
-    "prefer-rest-params": "off"
+    "prefer-rest-params": "off",
+
+    // typescript
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/prefer-namespace-keyword": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/ban-types": "off"
   }
 }

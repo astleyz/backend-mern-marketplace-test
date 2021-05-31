@@ -1,6 +1,65 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
-const CourseSchema = new mongoose.Schema({
+export type CourseSchemaType = {
+  _id: string;
+  id: string;
+  title: string;
+  subTitle: string;
+  img: string;
+  authors: string;
+  authorNames: string[];
+  whatWillYouLearn: {
+    title: string;
+    items: string[];
+  };
+  requirements: {
+    title: string;
+    items: string[];
+  };
+  description: {
+    title: string;
+    html: string;
+  };
+  forWho: {
+    title: string;
+    items: string[];
+  };
+  materials: MaterialType;
+  instructor: {
+    title: string;
+    names: string[];
+    jobs: string[];
+    coursesQuantity: string;
+    aboutme: string;
+  };
+  ownerId: string;
+};
+
+export type MaterialType = {
+  title: string;
+  info: string;
+  sections: SectionType[];
+  access: {
+    private: boolean;
+    users: string[];
+  };
+};
+
+export type SectionType = {
+  title: string;
+  fullLength: string;
+  lessons: LessonType[];
+};
+
+export type LessonType = {
+  name: string;
+  length: string;
+  comments: string[];
+};
+
+export interface ICourseSchema extends Omit<CourseSchemaType, '_id' | 'id'>, Document {}
+
+const CourseSchema: Schema = new mongoose.Schema({
   id: { type: String, required: true, unique: true },
   title: { type: String, required: true },
   subTitle: { type: String, required: true },
@@ -57,4 +116,4 @@ const CourseSchema = new mongoose.Schema({
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });
 
-export default mongoose.model('Course', CourseSchema);
+export default mongoose.model<ICourseSchema>('Course', CourseSchema);

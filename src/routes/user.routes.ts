@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import auth from '../middleware/auth.middleware.js';
-import upload from '../middleware/upload.middleware.js';
-import UserController from '../controllers/user.controller.js';
+import auth from '../middleware/auth.middleware';
+import upload from '../middleware/upload.middleware';
+import UserController from '../controllers/user.controller';
 
-const router = Router();
+const router: Router = Router();
 
 // /user
 router.get('/', auth, UserController.getUserData);

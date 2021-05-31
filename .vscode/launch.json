@@ -2,13 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "pwa-node",
       "request": "launch",
-      "name": "Nodemon Debug",
+      "name": "Nodemon TS",
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/nodemon",
-      "runtimeArgs": ["--nolazy", "--exec", "${workspaceFolder}/node_modules/.bin/babel-node"],
-      "program": "${workspaceFolder}/src/index.js",
+      "runtimeArgs": ["--nolazy", "-r", "${workspaceFolder}/node_modules/.bin/ts-node/register"],
+      "args": ["./src/index.ts", "--transpile-only"],
       "restart": true,
       "protocol": "inspector",
       "stopOnEntry": false,
@@ -16,12 +16,11 @@
       "showAsyncStacks": true,
       "console": "internalConsole",
       "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["node_modules/**"],
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
       "env": {
-        "BABEL_ENV": "development"
-      },
-      "preLaunchTask": "nodemon-debug",
-      "postDebugTask": "post-debug-rm-dist",
-      "outFiles": ["${workspaceRoot}/dist/**/*.js"]
+        "TS_NODE_PROJECT": "${workspaceFolder}/tsconfig.json"
+      }
     },
     {
       "name": "old",
