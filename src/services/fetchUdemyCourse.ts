@@ -16,8 +16,7 @@ export async function fetchUdemyCourseAndParse(link: string): Promise<UdemyCours
     course.subTitle = $('.udlite-text-md.clp-lead__headline').text().trim();
     course.img = $('.intro-asset--img-aspect--1UbeZ img')[0]
       .attribs.srcset.split(',')[1]
-      .split('?')[0]
-      .trim();
+      .split(' ')[1];
     course.authors = $('.instructor-links--names--7UPZj > span').text();
     course.authorNames = <any>$('.instructor-links--names--7UPZj > a > span')
       .map((i, el) => $(el).text())

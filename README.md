@@ -1,15 +1,15 @@
 ## Usage
 
-Rename .env-example to .env :
+Rename env-example to .env :
 
 ```javascript
-mv .env-example .env;
+mv env-example .env;
 ```
 
 Replace the database reference inside .env file
 
 ```javascript
-DATABASE_URL=mongodb://login:password@localhost:27017/db 
+DATABASE_URL=mongodb://login:password@localhost:27017/db
 // =>  DATABASE_URL=`your database link`
 ```
 

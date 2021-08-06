@@ -3,7 +3,7 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY . .
 RUN npm install pm2 -g
-RUN mv .env-example .env
+RUN mv env-example .env
 RUN yarn install
 RUN yarn run build
 

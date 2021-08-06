@@ -103,7 +103,7 @@ const CourseSchema: Schema = new mongoose.Schema({
     ],
     access: {
       private: { type: Boolean, default: false },
-      users: [{ type: mongoose.Schema.Types.ObjectId, unique: true, ref: 'User' }],
+      users: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     },
   },
   instructor: {
